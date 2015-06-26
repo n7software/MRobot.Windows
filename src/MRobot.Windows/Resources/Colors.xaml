@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="MainWindowBackgroundBrush" Color="#FF282828" />
+    <SolidColorBrush x:Key="MenuItemHoverBackgroundBrush" Color="#FF363636" />
+    <SolidColorBrush x:Key="PopupMenuBackgroundBrush" Color="#4D4D4D" />
+    <SolidColorBrush x:Key="PopupMenuItemHoverBackgroundBrush" Color="#FF686868" />
+    <SolidColorBrush x:Key="PopupMenuHeaderBackgroundBrush" Color="#FF282828" />
+    <SolidColorBrush x:Key="AvatarBorderBrush" Color="#FF888888" />
+    <SolidColorBrush x:Key="ActionForegroundBrush" Color="#5B9AD4" />
+    <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#CB3300" />
+    <SolidColorBrush x:Key="CountBackgroundBrush" Color="#CB3300" />
+    <SolidColorBrush x:Key="CountForegroundBrush" Color="White" />
+    <SolidColorBrush x:Key="GreenActionBackgroundBrush" Color="#709F33" />
+    <SolidColorBrush x:Key="BrushInformation" Color="#FF2692F2" />
+</ResourceDictionary>
