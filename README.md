@@ -14,11 +14,11 @@ The Multiplayer Robot Windows desktop client is designed to make playing game tu
 
 ### Looking for the Mac and Linux desktop clients?
 
-We've created some projects here on Github for the equivelant [Mac](/n7software/MRobot.Mac) and [Linux](/n7software/MRobot.Linux) desktop clients. Lacking the necessary experience, we haven't actually started these projects yet but are looking for some talented Multiplayer Robot community members to help us get them off the ground! If you'd like to get involved please visit our [Steam Discussion on these projects.](http://steamcommunity.com/groups/multiplayerrobot/discussions/2/618457398960463952/)
+We've created some projects here on Github for the equivelant [Mac](https://github.com/n7software/MRobot.Mac) and [Linux](https://github.com/n7software/MRobot.Linux) desktop clients. Lacking the necessary experience, we haven't actually started these projects yet but are looking for some talented Multiplayer Robot community members to help us get them off the ground! If you'd like to get involved please visit our [Steam Discussion on these projects.](http://steamcommunity.com/groups/multiplayerrobot/discussions/2/618457398960463952/)
 
 ### Want to get involved?
 
-Like the rest of the Multiplayer Robot service this desktop application is always a work in progress and we encourage and appreciate any and all contributions. We've released this code under the [MIT License](/n7software/MRobot.Windows/blob/master/LICENSE) so feel free to download it and modify it to your hearts content. If you feel up to making your own improvements and fixes please send us a pull request and we'll review adding it into this repository and publishing it in an update to the thousands that use this application every day.
+Like the rest of the Multiplayer Robot service this desktop application is always a work in progress and we encourage and appreciate any and all contributions. We've released this code under the [MIT License](/LICENSE) so feel free to download it and modify it to your hearts content. If you feel up to making your own improvements and fixes please send us a pull request and we'll review adding it into this repository and publishing it in an update to the thousands that use this application every day.
 
 ### What technologies does this use?
 
