@@ -161,3 +161,4 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 /packages
+/src/MRobot.Windows/_publish

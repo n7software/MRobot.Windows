@@ -64,7 +64,11 @@ namespace MRobot.Windows.Settings
 
         public string WebsiteBaseUrl
         {
-            get { return GetValue("WebsiteBaseUrl", "https://new.multiplayerrobot.com"); }
+#if LOCAL
+            get { return GetValue("WebsiteBaseUrl", "http://localhost:22945"); } 
+#else
+            get { return GetValue("WebsiteBaseUrl", "https://new.multiplayerrobot.com"); } 
+#endif
             set { SetValue("WebsiteBaseUrl", value); }
         }
         

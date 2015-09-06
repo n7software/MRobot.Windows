@@ -81,7 +81,8 @@ namespace MRobot.Windows
 
         private static GameManager InitializeGameManager()
         {
-            return GameManager = new GameManager();
+            GameManager = new GameManager();
+            return GameManager;
         }
 
         private void InitializeToastMaker()
@@ -120,12 +121,12 @@ namespace MRobot.Windows
             }
         }
 
-        public static async void AuthenticateWithServer(bool isConnected = true)
+        public static async Task<bool> AuthenticateWithServer(bool isConnected = true)
         {
             if (isConnected)
             {
                 CurrentUserId = 0;
-                var result = AuthenticationResult.TooManySessionCreates;
+                AuthenticationResult result;
 
                 do
                 {
@@ -139,8 +140,16 @@ namespace MRobot.Windows
                     {
                         CurrentUserId = -1;
                     }
+                    else if (result == AuthenticationResult.TooManySessionCreates)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                    }
                 } while (result == AuthenticationResult.TooManySessionCreates);
+
+                return result == AuthenticationResult.Success;
             }
+
+            return false;
         }
 
         private void InitializeSettings()
