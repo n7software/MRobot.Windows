@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -26,6 +27,8 @@ namespace MRobot.Windows.GameLogic
         public const string SavedGameExtension = ".Civ5Save";
         private readonly ILog Log = LogManager.GetLogger("GameManager");
         private readonly Dictionary<int, Game> Games = new Dictionary<int, Game>();
+
+        private DateTime _lastTurnReminderCheck = DateTime.MinValue;
         
         #endregion
 
@@ -36,6 +39,7 @@ namespace MRobot.Windows.GameLogic
             InitializeLocalGameSaveManager();
             InitializeGameSaveBroker();
             RegisterForServerEvents();
+            StartTurnReminderTask();
         }
 
         #endregion
@@ -106,13 +110,20 @@ namespace MRobot.Windows.GameLogic
             return games.ForEachAsync(
                     async game =>
                     {
-                        game.GameSlots = (await App.GameHub.GetGameSlots(game.Id)).ToList();
-                        game.CurrenTurn = await App.GameHub.GetCurrentTurn(game.Id);
-                        game.LastTurn = await App.GameHub.GetLastTurn(game.Id);
-
-                        lock (Games)
+                        try
                         {
-                            Games[game.Id] = game;
+                            game.GameSlots = (await App.GameHub.GetGameSlots(game.Id)).ToList();
+                            game.CurrenTurn = await App.GameHub.GetCurrentTurn(game.Id);
+                            game.LastTurn = await App.GameHub.GetLastTurn(game.Id);
+
+                            lock (Games)
+                            {
+                                Games[game.Id] = game;
+                            }
+                        }
+                        catch (Exception exc)
+                        {
+                            Log.Error($"Getting data for Game #{game.Id}", exc);
                         }
                     })
                 .ContinueWith(t => UpdateGamesList())
@@ -262,6 +273,41 @@ namespace MRobot.Windows.GameLogic
             string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             Regex r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
             return r.Replace(fileName, replacementChar);
+        }
+        
+        private void StartTurnReminderTask()
+        {
+            Task.Run((Action)TurnReminderThread);
+        }
+
+        private void TurnReminderThread()
+        {
+            try
+            {
+                while (true)
+                {
+                    Thread.Sleep(1000);
+
+                    if (App.SyncedSettings.NotifyNewTurn
+                        && DateTime.Now.Subtract(_lastTurnReminderCheck).TotalMinutes >= App.SyncedSettings.RepeatTurnNotifyEveryMinutes)
+                    {
+                        _lastTurnReminderCheck = DateTime.Now;
+
+                        var gameIdsToToast = new List<int>();
+
+                        lock (Games)
+                        {
+                            gameIdsToToast.AddRange(Games.Keys);
+                        }
+
+                        CheckForNewTurns(gameIdsToToast);
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Log.Error("TurnReminderThread", exc);
+            }
         }
 
         #endregion

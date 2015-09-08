@@ -49,6 +49,7 @@ namespace MRobot.Windows.Settings
         private void OnDesktopSettingsUpdated(DesktopSetting desktopSetting)
         {
             CacheDesktopSetting(desktopSetting);
+            UpdateEffectiveSettings();
         }
 
         private void CacheDesktopSetting(DesktopSetting desktopSetting)

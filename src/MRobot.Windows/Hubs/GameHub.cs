@@ -45,7 +45,7 @@ namespace MRobot.Windows.Hubs
 
         public Task<IEnumerable<Game>> GetUsersGames()
         {
-            return HubProxy.Invoke<IEnumerable<Game>>("GetUsersGames");
+            return HubProxy.Invoke<IEnumerable<Game>>("GetUsersGames", false);
         }
 
         public Task<Game> GetGame(int gameId)
