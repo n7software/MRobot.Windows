@@ -35,7 +35,7 @@ namespace MRobot.Windows.GameLogic
         {
             string dxParam = "//%5C";
 
-            switch (App.MrSettings.CivDirectXVersion)
+            switch (App.LocalSettings.CivDirectXVersion)
             {
                 case CivDxVersion.Dx9:
                     dxParam += "dx9";

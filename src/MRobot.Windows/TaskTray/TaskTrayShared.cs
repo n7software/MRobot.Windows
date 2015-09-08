@@ -5,7 +5,12 @@ namespace MRobot.Windows.TaskTray
 {
     public static class TaskTrayShared
     {
-        public const string WebsiteUrl = "http://new.multiplayerrobot.com";
+#if LOCAL
+        public const string WebsiteUrl = "http://localhost:22945";
+#else
+        public const string WebsiteUrl = "https://new.multiplayerrobot.com";
+#endif
+
         public const string CommandsPipeName = "MRobot.Windows.TaskTrayCommandsPipe";
         public const string StatusPipeName = "MRobot.Windows.TaskTrayStatusPipe";
 

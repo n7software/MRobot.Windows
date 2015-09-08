@@ -15,7 +15,7 @@ namespace MRobot.Windows
     static class AppMenuItems
     {
         //For easy potential switching to 
-        public readonly static string Hostname = TaskTrayShared.WebsiteUrl;
+        public readonly static string Hostname = TaskTrayShared.WebsiteUrl + "/";
 
         public static readonly MenuItemModel GamesMenu = new MenuItemModel
         {
@@ -49,7 +49,7 @@ namespace MRobot.Windows
                     new Link { Name = "Blog", Url = "http://blog.multiplayerrobot.com" },
                     new Link { Name = "Facebook", Url = "http://facebook.com/MultiplayerRobot" },
                     new Link { Name = "Twitter", Url = "http://twitter.com/GMRobot" },
-                    new Link { Name = "Apps", Url = Hostname + "#Apps" }
+                    new Link { Name = "Client Settings", Url = Hostname + "#Apps/Settings" }
                 }
             },
 

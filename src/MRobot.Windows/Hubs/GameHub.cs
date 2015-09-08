@@ -74,7 +74,7 @@ namespace MRobot.Windows.Hubs
             client.DefaultRequestHeaders.ExpectContinue = false;
 
             var content = new MultipartFormDataContent(string.Format("Upload----{0}", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)));
-            content.Add(new StringContent(App.MrSettings.AuthenticationKey), "authKey");
+            content.Add(new StringContent(App.LocalSettings.AuthenticationKey), "authKey");
             content.Add(new StringContent("2"), "source");
             content.Add(new StreamContent(saveStream), "file", "Upload.Civ5Save");
 

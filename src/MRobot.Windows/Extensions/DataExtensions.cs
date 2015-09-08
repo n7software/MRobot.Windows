@@ -21,5 +21,10 @@ namespace MRobot.Windows.Extensions
             return submitType == SubmitType.ManualSkipped
                    || submitType == SubmitType.TimerSkipped;
         }
+
+        public static bool DidTurnEarnPoints(this Turn turn)
+        {
+            return turn.SubmitType.WasSubmittedByWebOrClient() && turn.Points > 0;
+        }
     }
 }

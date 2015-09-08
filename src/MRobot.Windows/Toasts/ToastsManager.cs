@@ -91,12 +91,12 @@ namespace MRobot.Windows.Toasts
 
                 InternalToastMaker = isWin8
                         ? new WindowsApiToastMaker(applicationIconPath,
-                            App.MrSettings.InstalledStartMenuShortcutVersion != App.StartMenuShortcutVersion)
+                            App.LocalSettings.InstalledStartMenuShortcutVersion != App.StartMenuShortcutVersion)
                         : (IToastMaker)new WpfToastMaker();
 
                 if (isWin8)
                 {
-                    App.MrSettings.InstalledStartMenuShortcutVersion = App.StartMenuShortcutVersion;
+                    App.LocalSettings.InstalledStartMenuShortcutVersion = App.StartMenuShortcutVersion;
                 }
             }
         }

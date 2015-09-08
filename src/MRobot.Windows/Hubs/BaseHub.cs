@@ -31,7 +31,7 @@ namespace MRobot.Windows.Hubs
                 AllowAutoRedirect = false
             };
 
-            var client = new HttpClient(handler) { BaseAddress = baseAddress ?? new Uri(App.MrSettings.WebsiteBaseUrl) };
+            var client = new HttpClient(handler) { BaseAddress = baseAddress ?? new Uri(App.LocalSettings.WebsiteBaseUrl) };
 
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));

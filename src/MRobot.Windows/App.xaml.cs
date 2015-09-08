@@ -31,8 +31,7 @@ namespace MRobot.Windows
     public partial class App : Application
     {
         #region Fields
-
-        public const string WebsiteBaseUrl = "https://new.multiplayerrobot.com";
+        
         private const string LocalSettingsFileName = "settings.xml";
         public const int StartMenuShortcutVersion = 3;
 
@@ -44,12 +43,15 @@ namespace MRobot.Windows
 
         public static ILog Log { get; private set; }
 
-        public static LocalSettings MrSettings { get; private set; }
+        public static LocalSettings LocalSettings { get; private set; }
 
-        public static long CurrentUserId { get; set; }
+        public static DesktopSetting SyncedSettings { get; set; }
 
-        public static ToastsManager ToastMaker { get; set; }
-        public static GameManager GameManager { get; set; }
+        public static long CurrentUserId { get; private set; }
+
+        public static ToastsManager ToastMaker { get; private set; }
+        public static GameManager GameManager { get; private set; }
+        public static SyncedSettingsManager SyncedSettingsManager { get; private set; }
 
         public static UserHub UserHub { get; private set; }
         public static GameHub GameHub { get; private set; }
@@ -68,12 +70,13 @@ namespace MRobot.Windows
             }
             else
             {
-                InitializeSettings();
+                InitializeLocalSettings();
                 InitializeToastMaker();
                 InitialiazeMenuItems();
                 ConnectToServer()
                     .ContinueWith(t => AuthenticateWithServer(t.Result))
-                    .ContinueWith(t => InitializeGameManager());
+                    .ContinueWith(t => InitializeGameManager())
+                    .ContinueWith(t => InitializeSyncedSettings());
 
                 Task.Run(new Action(AttemptToSetAddRemoveProgramsIcon));
             }
@@ -83,6 +86,12 @@ namespace MRobot.Windows
         {
             GameManager = new GameManager();
             return GameManager;
+        }
+
+        private void InitializeSyncedSettings()
+        {
+            SyncedSettings = new DesktopSetting();
+            SyncedSettingsManager = new SyncedSettingsManager();
         }
 
         private void InitializeToastMaker()
@@ -96,7 +105,7 @@ namespace MRobot.Windows
 
             try
             {
-                var hubConnection = new HubConnection(MrSettings.WebsiteBaseUrl)
+                var hubConnection = new HubConnection(LocalSettings.WebsiteBaseUrl)
                 {
                     TraceLevel = TraceLevels.All,
                     TraceWriter = Console.Out
@@ -130,7 +139,7 @@ namespace MRobot.Windows
 
                 do
                 {
-                    result = await App.UserHub.Authenticate(MrSettings.AuthenticationKey);
+                    result = await App.UserHub.Authenticate(LocalSettings.AuthenticationKey);
 
                     if (result == AuthenticationResult.Success)
                     {
@@ -152,23 +161,21 @@ namespace MRobot.Windows
             return false;
         }
 
-        private void InitializeSettings()
+        private void InitializeLocalSettings()
         {
             var legacySettings = CreateLegacySettings();
-
             CreateLocalSettings();
-
             CopyLegacySettings(legacySettings);
         }
 
         private void CopyLegacySettings(LegacySettings legacySettings)
         {
-            if (legacySettings != null && !MrSettings.HasCopiedLegacySettings)
+            if (legacySettings != null && !LocalSettings.HasCopiedLegacySettings)
             {
-                MrSettings.AuthenticationKey = legacySettings.AuthenticationKey;
-                MrSettings.CivDirectXVersionInt = legacySettings.CivDirectXVersionInt;
-                MrSettings.RememberDxVersion = legacySettings.RememberDxVersion;
-                MrSettings.HasCopiedLegacySettings = true;
+                LocalSettings.AuthenticationKey = legacySettings.AuthenticationKey;
+                LocalSettings.CivDirectXVersionInt = legacySettings.CivDirectXVersionInt;
+                LocalSettings.RememberDxVersion = legacySettings.RememberDxVersion;
+                LocalSettings.HasCopiedLegacySettings = true;
             }
         }
 
@@ -176,7 +183,7 @@ namespace MRobot.Windows
         {
             var settingsPath = TaskTrayShared.GetAppDataDirectoryPath();
 
-            MrSettings = new LocalSettings(Path.Combine(settingsPath, LocalSettingsFileName));
+            LocalSettings = new LocalSettings(Path.Combine(settingsPath, LocalSettingsFileName));
         }
 
         private LegacySettings CreateLegacySettings()

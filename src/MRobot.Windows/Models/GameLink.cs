@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MRobot.Windows.TaskTray;
+using MRobot.Windows.Utilities;
 
 namespace MRobot.Windows.Models
 {
@@ -27,7 +29,7 @@ namespace MRobot.Windows.Models
 
         private void OnGameLinkClicked()
         {
-            Process.Start(App.WebsiteBaseUrl + "/#Games/" + _game.Id);
+            LauncherUtil.LaunchUrlWithDefaultBrowser(TaskTrayShared.WebsiteUrl + "/#Games/" + _game.Id);
         }
     }
 }

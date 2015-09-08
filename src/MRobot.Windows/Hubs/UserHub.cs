@@ -11,16 +11,20 @@ namespace MRobot.Windows.Hubs
     public class UserHub : BaseHub
     {
         #region Constructor
+
         public UserHub(HubConnection connection)
             : base("UserHub", connection)
         {
             HubProxy.On<User>("userUpdated", user => UserUpdated(user));
-        } 
+            HubProxy.On<DesktopSetting>("desktopSettingsUpdated", setting => DesktopSettingsUpdated(setting));
+        }
+
         #endregion
 
         #region Events
 
         public event Action<User> UserUpdated = _ => { };
+        public event Action<DesktopSetting> DesktopSettingsUpdated = _ => { };
 
         #endregion
 
@@ -38,6 +42,11 @@ namespace MRobot.Windows.Hubs
         public async Task<long> GetCurrentUserId()
         {
             return await HubProxy.Invoke<long>("GetCurrentUserId");
+        }
+
+        public async Task<IEnumerable<DesktopSetting>> GetDesktopSettings()
+        {
+            return await HubProxy.Invoke<IEnumerable<DesktopSetting>>("GetDesktopSEttings");
         }
         #endregion
     }

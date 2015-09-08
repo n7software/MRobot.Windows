@@ -135,7 +135,7 @@ namespace MRobot.Windows.GameLogic
 
         private void ShowNewTurnsToast(List<Game> gamesWithTurn)
         {
-            if (gamesWithTurn.Count > 0)
+            if (gamesWithTurn.Count > 0 && App.SyncedSettings.NotifyNewTurn)
             {
                 string toastHeader = string.Format("It's your turn in {0} games.", gamesWithTurn.Count);
 
@@ -176,9 +176,9 @@ namespace MRobot.Windows.GameLogic
                     if (turn.FinishedAt.HasValue 
                         && game.CurrenTurn.FinishedAt == null)
                     {
-                        if (turn.SubmitType.WasSubmittedByWebOrClient() && turn.Points > 0)
+                        if (turn.DidTurnEarnPoints() && App.SyncedSettings.NotifyPointsEarned)
                         {
-                            App.ToastMaker.ShowToast(string.Format("You just earned {0} points!", turn.Points), game.Name); 
+                            App.ToastMaker.ShowToast($"You just earned {turn.Points} points!", game.Name); 
                         }
                         else if (turn.SubmitType.WasSkipped())
                         {

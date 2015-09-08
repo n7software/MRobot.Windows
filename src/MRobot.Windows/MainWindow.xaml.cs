@@ -144,7 +144,7 @@ namespace MRobot.Windows
 
             CheckLastUpdateVersion();
 
-            AuthKey = App.MrSettings.AuthenticationKey;
+            AuthKey = App.LocalSettings.AuthenticationKey;
 
             SlideInMenu(() => { });
         }
@@ -349,7 +349,7 @@ namespace MRobot.Windows
         {
             _isRequestingAuthKey = false;
             AuthTokenDialog.Visibility = Visibility.Collapsed;
-            App.MrSettings.AuthenticationKey = AuthKey.Trim();
+            App.LocalSettings.AuthenticationKey = AuthKey.Trim();
             App.AuthenticateWithServer();
             WaitForConnection();
         }
@@ -528,15 +528,19 @@ namespace MRobot.Windows
             if (ApplicationDeployment.IsNetworkDeployed)
             {
                 string currentVersion = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
-                string lastVersion = App.MrSettings.LastUpdateVersion;
+                string lastVersion = App.LocalSettings.LastUpdateVersion;
 
                 if (!string.IsNullOrEmpty(lastVersion) && currentVersion != lastVersion)
                 {
-                    App.ToastMaker.ShowToast("Client Updated!", String.Format("Version {0}", currentVersion));
+                    if (App.SyncedSettings.NotifyWhenUpdated)
+                    {
+                        App.ToastMaker.ShowToast("Client Updated!", String.Format("Version {0}", currentVersion)); 
+                    }
+
                     Log.DebugFormat("Successfully updated to version {0}", currentVersion);
                 }
 
-                App.MrSettings.LastUpdateVersion = currentVersion;
+                App.LocalSettings.LastUpdateVersion = currentVersion;
             }
         }
 
@@ -605,7 +609,7 @@ namespace MRobot.Windows
 
         private void OnLaunchCiv(object sender, ExecutedRoutedEventArgs e)
         {
-            if (App.MrSettings.RememberDxVersion)
+            if (App.LocalSettings.RememberDxVersion)
             {
                 CivGameHelper.LaunchGame();
             }
@@ -621,7 +625,7 @@ namespace MRobot.Windows
 
             if (!string.IsNullOrEmpty(menuItem.MainLinkUrl))
             {
-                Process.Start(menuItem.MainLinkUrl);
+                LauncherUtil.LaunchUrlWithDefaultBrowser(menuItem.MainLinkUrl);
             }
         }
 
@@ -631,7 +635,7 @@ namespace MRobot.Windows
 
             if (!string.IsNullOrEmpty(link.Url))
             {
-                Process.Start(link.Url);
+                LauncherUtil.LaunchUrlWithDefaultBrowser(link.Url);
             }
             else if (link is ActionLink)
             {
@@ -692,7 +696,7 @@ namespace MRobot.Windows
         private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
         {
             var uri = (sender as Hyperlink).NavigateUri;
-            Process.Start(uri.ToString());
+            LauncherUtil.LaunchUrlWithDefaultBrowser(uri.ToString());
         }
 
         private void SubmitAuthKey_OnClick(object sender, RoutedEventArgs e)
