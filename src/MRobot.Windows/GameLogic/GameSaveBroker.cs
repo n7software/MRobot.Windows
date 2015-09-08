@@ -189,7 +189,7 @@ namespace MRobot.Windows.GameLogic
 
         private bool IsGameSaveNewerThanDownloadedVersion(Game game)
         {
-            var localSave = _localSaveManager.GetLocalSaveFile(game.Id);
+            LocalSaveFile localSave = _localSaveManager.GetLocalSaveFile(game.Id);
 
             return localSave == null || game.LastTurn.LastModifiedSave > localSave.DownloadedAt;
         }

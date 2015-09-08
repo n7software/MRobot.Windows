@@ -26,21 +26,58 @@ namespace MRobot.Windows.GameLogic
         public const string SavedGameExtension = ".Civ5Save";
         private readonly ILog Log = LogManager.GetLogger("GameManager");
         private readonly Dictionary<int, Game> Games = new Dictionary<int, Game>();
-
-        private readonly LocalGameSaveManager _localGameSaveManager;
-        private readonly GameSaveBroker _gameSaveBroker;
-
+        
         #endregion
 
         #region Constructor
 
         public GameManager()
         {
-            _localGameSaveManager = new LocalGameSaveManager();
-            _localGameSaveManager.NewGameSaveDetected += LocalGameSaveManagerOnNewGameSaveDetected;
+            InitializeLocalGameSaveManager();
+            InitializeGameSaveBroker();
+            RegisterForServerEvents();
+        }
 
-            _gameSaveBroker = new GameSaveBroker(_localGameSaveManager);
+        #endregion
 
+        #region Properties
+        private LocalGameSaveManager LocalGameSaveManager { get; set; }
+        private GameSaveBroker GameSaveBroker { get; set; }
+        #endregion
+
+        #region Public Methods
+        public static string GetCivFiveSavesDirectoryPath()
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            path = Path.Combine(path, @"My Games\Sid Meier's Civilization 5\Saves\hotseat");
+
+            Directory.CreateDirectory(path);
+
+            return path;
+        }
+
+        public void FinishLoadingGamesTask(Task<IEnumerable<Game>> gamesTask)
+        {
+            var games = gamesTask.Result.ToList();
+
+            GetDataForGamesAsync(games);
+        }
+
+        public static string CreateSaveName(Game game)
+        {
+            return $"(MR) {game.Name}{SavedGameExtension}";
+        }
+        #endregion
+
+        #region Private Methods
+
+        private void InitializeGameSaveBroker()
+        {
+            GameSaveBroker = new GameSaveBroker(LocalGameSaveManager);
+        }
+
+        private void RegisterForServerEvents()
+        {
             App.GameHub.TurnCreated += OnTurnChanged;
             App.GameHub.TurnDeleted += OnTurnChanged;
             App.GameHub.TurnUpdated += OnTurnUpdated;
@@ -48,24 +85,16 @@ namespace MRobot.Windows.GameLogic
             App.GameHub.UserLeftGame += OnUserLeftGame;
         }
 
-        #endregion
-
-        #region Public Methods
-        
-        public void FinishLoadingGamesTask(Task<IEnumerable<Game>> gamesTask)
+        private void InitializeLocalGameSaveManager()
         {
-            var startedGames = gamesTask.Result.ToList();
-
-            GetDataForGamesAsync(startedGames);
+            IFileSystemWatcher fileWatcher = new EnhancedFileSystemWatcher(GetCivFiveSavesDirectoryPath())
+            {
+                WatchSubdirectories = false,
+                ExtensionWhiteList = new List<string> { ".civ5save" }
+            };
+            LocalGameSaveManager = new LocalGameSaveManager(fileWatcher);
+            LocalGameSaveManager.NewGameSaveDetected += LocalGameSaveManagerOnNewGameSaveDetected;
         }
-
-        public static string CreateSaveName(Game game)
-        {
-            return string.Format("(MR) {0}{1}", game.Name, SavedGameExtension);
-        }
-        #endregion
-
-        #region Private Methods
 
         private Task GetDataForGameAsync(Game game)
         {
@@ -119,11 +148,11 @@ namespace MRobot.Windows.GameLogic
                 if (game.IsCurrentUserTurnAndNotSubmitted())
                 {
                     gamesWithTurn.Add(game);
-                    _gameSaveBroker.DownloadSaveIfAvailable(game);
+                    GameSaveBroker.DownloadSaveIfAvailable(game);
                 }
                 else
                 {
-                    _localGameSaveManager.DeleteLocalSaveIfPresent(game);
+                    LocalGameSaveManager.DeleteLocalSaveIfPresent(game);
                 }
             }
 
@@ -224,7 +253,7 @@ namespace MRobot.Windows.GameLogic
             var game = GetGameFromCache(args.GameId);
             if (game != null && game.IsCurrentUserTurnAndNotSubmitted())
             {
-                _gameSaveBroker.SubmitGameSaveToServer(game, args.Save);
+                GameSaveBroker.SubmitGameSaveToServer(game, args.Save);
             }
         }
 

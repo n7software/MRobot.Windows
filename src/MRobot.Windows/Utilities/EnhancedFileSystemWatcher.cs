@@ -11,7 +11,7 @@ namespace MRobot.Windows.Utilities
     using System.Threading;
     using log4net;
 
-    public class EnhancedFileSystemWatcher
+    public class EnhancedFileSystemWatcher : IFileSystemWatcher
     {
         #region Properties
         public string PathToWatch { get; set; }

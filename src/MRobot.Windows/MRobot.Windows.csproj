@@ -178,6 +178,7 @@
     <Compile Include="Toasts\WpfToastWindow.xaml.cs">
       <DependentUpon>WpfToastWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\IFileSystemWatcher.cs" />
     <Compile Include="Utilities\LauncherUtil.cs" />
     <Compile Include="Utilities\NamedPipeChannel.cs" />
     <Compile Include="Utilities\BooleanConverter.cs" />

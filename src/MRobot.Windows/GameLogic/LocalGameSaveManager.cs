@@ -19,17 +19,21 @@ namespace MRobot.Windows.GameLogic
         private const string ArchiveFolderName = "GMR Archive";
 
         private ILog Log = LogManager.GetLogger("LocalGameSaveManager");
-        private EnhancedFileSystemWatcher FileWatcher;
-        private string CivVSaveDirectoryPath = null;
 
         private readonly Dictionary<int, LocalSaveFile> LocalSaveFiles = new Dictionary<int, LocalSaveFile>();
+
+        private readonly IFileSystemWatcher _fileWatcher;
+        private readonly string _savesDirectoryPath;
 
         #endregion
 
         #region Constructor
 
-        public LocalGameSaveManager()
+        public LocalGameSaveManager(IFileSystemWatcher fileWatcher)
         {
+            _fileWatcher = fileWatcher;
+            _savesDirectoryPath = fileWatcher.PathToWatch;
+
             InitializeFileSystemWatcher();
         }
 
@@ -40,13 +44,12 @@ namespace MRobot.Windows.GameLogic
         public event EventHandler<NewGameSaveDetectedArgs> NewGameSaveDetected;
 
         #endregion
-
+        
         #region Public Methods
 
         public string CreateLocalSaveFilePath(Game game)
         {
-            string savesDirPath = GetSavesDirectoryPath();
-            return Path.Combine(savesDirPath, GameManager.CreateSaveName(game));
+            return Path.Combine(_savesDirectoryPath, GameManager.CreateSaveName(game));
         }
 
         public void AddLocalSave(Game game, string localFilePath)
@@ -135,20 +138,7 @@ namespace MRobot.Windows.GameLogic
         #endregion
 
         #region Private Methods
-
-        private string GetSavesDirectoryPath()
-        {
-            if (CivVSaveDirectoryPath == null)
-            {
-                CivVSaveDirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                CivVSaveDirectoryPath = Path.Combine(CivVSaveDirectoryPath, @"My Games\Sid Meier's Civilization 5\Saves\hotseat");
-
-                Directory.CreateDirectory(CivVSaveDirectoryPath);
-            }
-
-            return CivVSaveDirectoryPath;
-        }
-
+        
         private void OnCivSaveFileModified(string filePath)
         {
             HandleNewFile(filePath);
@@ -202,14 +192,9 @@ namespace MRobot.Windows.GameLogic
 
         private void InitializeFileSystemWatcher()
         {
-            FileWatcher = new EnhancedFileSystemWatcher(GetSavesDirectoryPath())
-            {
-                WatchSubdirectories = false,
-                ExtensionWhiteList = new List<string> { ".civ5save" }
-            };
-            FileWatcher.ItemAdded += OnCivSaveFileCreated;
-            FileWatcher.ItemModified += OnCivSaveFileModified;
-            FileWatcher.Start();
+            _fileWatcher.ItemAdded += OnCivSaveFileCreated;
+            _fileWatcher.ItemModified += OnCivSaveFileModified;
+            _fileWatcher.Start();
         }
 
         private void UpdateCurrentTurnCount()
@@ -219,7 +204,7 @@ namespace MRobot.Windows.GameLogic
 
         public string GetArchiveFolderPath()
         {
-            string archiveFolderPath = Path.Combine(CivVSaveDirectoryPath, ArchiveFolderName);
+            string archiveFolderPath = Path.Combine(_savesDirectoryPath, ArchiveFolderName);
             Directory.CreateDirectory(archiveFolderPath);
 
             return archiveFolderPath;
