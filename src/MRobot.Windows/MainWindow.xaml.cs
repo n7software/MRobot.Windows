@@ -65,7 +65,7 @@ namespace MRobot.Windows
             NamedPipeChannel.BeginServerListen(TaskTrayShared.CommandsPipeName, OnTrayCommandReceived)
                             .ContinueWith(OnTrayCommandServerTaskEnded);
 
-            this.Loaded += OnLoaded;
+            Loaded += OnLoaded;
         }
 
         #endregion
@@ -136,7 +136,7 @@ namespace MRobot.Windows
             this.CommandBindings.Add(new CommandBinding(MrCommands.LaunchCiv, OnLaunchCiv));
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
+        private void OnLoaded(object sender, RoutedEventArgs args)
         {
             InitializeTaskTrayManager();
 
@@ -147,6 +147,18 @@ namespace MRobot.Windows
             AuthKey = App.LocalSettings.AuthenticationKey;
 
             SlideInMenu(() => { });
+        }
+        
+        private bool UserWantsToCancelExit()
+        {
+            return MessageBoxResult.No ==
+                   MessageBox.Show(
+                       "Are you sure you want to exit the Multiplayer Robot desktop client?",
+                       "Exit Multiplayer Robot?",
+                       MessageBoxButton.YesNo,
+                       MessageBoxImage.Question,
+                       MessageBoxResult.Yes
+                   );
         }
 
         private void InitializeTaskTrayManager()
@@ -514,6 +526,11 @@ namespace MRobot.Windows
 
         private void OnTrayExitCommand()
         {
+            if (App.SyncedSettings.ExitPromptEnabled && UserWantsToCancelExit())
+            {
+                return;
+            }
+
             _taskTrayManager.KillTaskTray();
             Dispatcher.BeginInvoke(new Action(Close));
         }
