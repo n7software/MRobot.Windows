@@ -10,6 +10,10 @@
             typeof(MouseBehaviour), new FrameworkPropertyMetadata(
             new PropertyChangedCallback(MouseUpCommandChanged)));
 
+        public static readonly DependencyProperty MouseUpCommandParameterProperty =
+            DependencyProperty.RegisterAttached("MouseUpCommandParameter", typeof(object),
+            typeof(MouseBehaviour));
+
         private static void MouseUpCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             FrameworkElement element = (FrameworkElement)d;
@@ -22,10 +26,9 @@
             e.Handled = true;
 
             FrameworkElement element = (FrameworkElement)sender;
-
             ICommand command = GetMouseUpCommand(element);
-
-            command.Execute(e);
+            object commandParameter = GetMouseUpCommandParameter(element);
+            command.Execute(commandParameter ?? e);
         }
 
         public static void SetMouseUpCommand(UIElement element, ICommand value)
@@ -36,6 +39,16 @@
         public static ICommand GetMouseUpCommand(UIElement element)
         {
             return (ICommand)element.GetValue(MouseUpCommandProperty);
+        }
+
+        public static void SetMouseUpCommandParameter(UIElement element, object value)
+        {
+            element.SetValue(MouseUpCommandParameterProperty, value);
+        }
+
+        public static object GetMouseUpCommandParameter(UIElement element)
+        {
+            return element.GetValue(MouseUpCommandParameterProperty);
         }
     }
 }

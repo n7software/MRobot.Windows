@@ -153,7 +153,10 @@
     <Compile Include="Data\User.cs" />
     <Compile Include="Extensions\DataExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
-    <Compile Include="GameLogic\CivGameHelper.cs" />
+    <Compile Include="GameLogic\Apps\CivBeyondEarthController.cs" />
+    <Compile Include="GameLogic\Apps\ICivAppController.cs" />
+    <Compile Include="GameLogic\Apps\CivFiveController.cs" />
+    <Compile Include="GameLogic\Apps\CivAppControllerFactory.cs" />
     <Compile Include="GameLogic\GameManager.cs" />
     <Compile Include="GameLogic\GameSaveBroker.cs" />
     <Compile Include="GameLogic\LocalGameSaveManager.cs" />

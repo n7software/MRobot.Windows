@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:cmds="clr-namespace:MRobot.Windows.Commands"
                     xmlns:gameLogic="clr-namespace:MRobot.Windows.GameLogic"
+                    xmlns:models="clr-namespace:MRobot.Windows.Models"
                     xmlns:local="clr-namespace:MRobot.Windows">
 
     <DataTemplate x:Key="TransfersPopupTemplate">
@@ -74,7 +75,8 @@
             <Grid Width="48"
                   VerticalAlignment="Stretch"
                   DockPanel.Dock="Right"
-                  cmds:MouseBehaviour.MouseUpCommand="{x:Static cmds:MrCommands.LaunchCiv}">
+                  cmds:MouseBehaviour.MouseUpCommand="{x:Static cmds:MrCommands.LaunchCiv}"
+                  cmds:MouseBehaviour.MouseUpCommandParameter="0">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Background" Value="Transparent" />
@@ -115,7 +117,7 @@
         </DockPanel>
     </DataTemplate>
 
-    <DataTemplate x:Key="GameLinkTemplate">
+    <DataTemplate x:Key="GameLinkTemplate" DataType="{x:Type models:GameLink}">
         <ContentControl Cursor="Hand">
             <ContentControl.Style>
                 <Style TargetType="ContentControl">
@@ -137,7 +139,8 @@
                                             Background="{StaticResource GreenActionBackgroundBrush}"
                                             Visibility="{Binding Path=IsCurrentTurn,
                                                                  Converter={StaticResource BooleanToVisibilityConverter}}"
-                                            cmds:MouseBehaviour.MouseUpCommand="{x:Static cmds:MrCommands.LaunchCiv}">
+                                            cmds:MouseBehaviour.MouseUpCommand="{x:Static cmds:MrCommands.LaunchCiv}"
+                                            cmds:MouseBehaviour.MouseUpCommandParameter="{Binding Type}">
                                         <Rectangle x:Name="LaunchGameIcon"
                                                    Width="24"
                                                    Height="24"

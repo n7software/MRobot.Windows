@@ -15,10 +15,9 @@ namespace MRobot.Windows.Models
     {
         private Game _game;
 
-        public bool IsCurrentTurn
-        {
-            get { return _game.IsCurrentUserTurnAndNotSubmitted(); }
-        }
+        public bool IsCurrentTurn => _game.IsCurrentUserTurnAndNotSubmitted();
+
+        public int Type => _game.Type;
 
         public GameLink(Game game)
         {

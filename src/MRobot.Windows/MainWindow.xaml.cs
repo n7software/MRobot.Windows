@@ -485,7 +485,7 @@ namespace MRobot.Windows
             }
             else if (command.StartsWith(TaskTrayShared.UriLaunchCivCommand))
             {
-                CivGameHelper.LaunchGame();
+                App.GameManager.LaunchGame();
             }
             else
             {
@@ -628,7 +628,14 @@ namespace MRobot.Windows
         {
             if (App.LocalSettings.RememberDxVersion)
             {
-                CivGameHelper.LaunchGame();
+                if (e.Parameter is int)
+                {
+                    App.GameManager.LaunchGame((int)e.Parameter);
+                }
+                else
+                {
+                    App.GameManager.LaunchGame();
+                }
             }
             else
             {

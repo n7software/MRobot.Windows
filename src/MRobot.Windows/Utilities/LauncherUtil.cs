@@ -14,6 +14,11 @@ namespace MRobot.Windows.Utilities
         {
             Process.Start(GetDefaultBrowserPath(), url);
         }
+        
+        public static Process FindProcessByName(List<string> possibleNames)
+        {
+            return Process.GetProcesses().FirstOrDefault(process => possibleNames.Contains(process.ProcessName));
+        }
 
         private static string GetDefaultBrowserPath()
         {
