@@ -4,7 +4,7 @@
         xmlns:tb="http://www.hardcodet.net/taskbar"
         x:Name="ThisWindow"
         DataContext="{Binding ElementName=ThisWindow}"
-        Title="MainWindow" Height="0" Width="0" AllowsTransparency="True" ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="None">
+        Title="MainWindow" Height="0" Width="0" AllowsTransparency="True" ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="None" Opacity="0" WindowState="Minimized">
     <Grid>
         <!--  TaskBar Icon  -->
         <tb:TaskbarIcon x:Name="TrayIcon"
