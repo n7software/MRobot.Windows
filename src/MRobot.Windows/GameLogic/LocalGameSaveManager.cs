@@ -109,8 +109,7 @@ namespace MRobot.Windows.GameLogic
 
         public void ArchiveFile(LocalGameSave localSave)
         {
-            // TODO: Check whether save should be archived
-            if (File.Exists(localSave.LocalFilePath))
+            if (App.SyncedSettings.ArchiveSubmittedFiles && File.Exists(localSave.LocalFilePath))
             {
                 try
                 {

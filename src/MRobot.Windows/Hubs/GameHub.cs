@@ -80,7 +80,12 @@ namespace MRobot.Windows.Hubs
 
             var response = await client.PutAsync("Game/UploadSave", content);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsAsync<SaveUploadResult>();
+            SaveUploadResult result = await response.Content.ReadAsAsync<SaveUploadResult>();
+
+            saveStream.Close();
+            saveStream.Dispose();
+
+            return result;
         }
 
         #endregion

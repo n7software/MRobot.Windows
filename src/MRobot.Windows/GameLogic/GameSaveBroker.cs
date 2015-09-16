@@ -24,7 +24,7 @@ namespace MRobot.Windows.GameLogic
 
         private readonly ILog Log = LogManager.GetLogger("GameSaveBroker");
         private readonly LocalGameSaveManager _localSaveManager;
-        
+
         #endregion
 
         #region Constructors
@@ -43,7 +43,7 @@ namespace MRobot.Windows.GameLogic
 
         #region Public Fields and Properties
 
-        public static readonly ObservableCollection<SaveTransfer> CurrentSaveTransfers = new ObservableCollection<SaveTransfer>(); 
+        public static readonly ObservableCollection<SaveTransfer> CurrentSaveTransfers = new ObservableCollection<SaveTransfer>();
 
         #endregion
 
@@ -60,18 +60,9 @@ namespace MRobot.Windows.GameLogic
 
         public void SubmitGameSaveToServer(Game game, LocalGameSave localSave)
         {
-            AddNewSaveTransfer(
-                new SaveTransfer
-                {
-                    Game = game,
-                    IconVisual = Application.Current.FindResource("TransfersIcon") as Visual
-                });
+            AddNewSaveTransfer(game);
 
-            var memStream = new MemoryStream();
-            localSave.GameSave.Save(memStream);
-            memStream.Position = 0;
-
-            var progressStream = new ProgressStream(memStream);
+            var progressStream = LoadSaveIntoProgressStream(localSave);
             progressStream.BytesRead += (sender, args) => OnGameSaveUploadBytesRead(game.Id, args);
 
             App.GameHub.UploadSave(progressStream)
@@ -82,7 +73,7 @@ namespace MRobot.Windows.GameLogic
                     {
                         if (t.IsFaulted)
                         {
-                            Log.Error(string.Format("Uploading save for game #{0}", game.Id), t.Exception);
+                            Log.Error($"Uploading save for game #{game.Id}", t.Exception);
                             saveTransfer.IsFailed = true;
                             RetrySaveTransferAfterWait(saveTransfer, () => SubmitGameSaveToServer(game, localSave));
                         }
@@ -95,23 +86,41 @@ namespace MRobot.Windows.GameLogic
                             SaveUploadResult uploadResult = t.Result;
                             if (uploadResult != null)
                             {
-                                //TODO: Show message from server
+                                App.ToastMaker.ShowToast("Error Submitting Turn", uploadResult.Message);
                             }
                         }
                     }
-
-                    memStream.Close();
-                    memStream.Dispose();
                 });
+        }
+
+        private static ProgressStream LoadSaveIntoProgressStream(LocalGameSave localSave)
+        {
+            var memStream = new MemoryStream();
+            localSave.GameSave.Save(memStream);
+            memStream.Position = 0;
+
+            var progressStream = new ProgressStream(memStream);
+            return progressStream;
         }
 
         #endregion
 
         #region Private Methods
 
-        private void AddNewSaveTransfer(SaveTransfer transfer)
+        private void AddNewSaveTransfer(Game game)
         {
+            var transfer = CreateNewSaveTransfer(game);
             Application.Current.Dispatcher.Invoke(() => CurrentSaveTransfers.Add(transfer));
+        }
+
+        private static SaveTransfer CreateNewSaveTransfer(Game game)
+        {
+            var transfer = new SaveTransfer
+            {
+                Game = game,
+                IconVisual = Application.Current.FindResource("TransfersIcon") as Visual
+            };
+            return transfer;
         }
 
         private void OnFileTransferCompleted(Game game, string localFilePath, Exception exception)
@@ -151,11 +160,36 @@ namespace MRobot.Windows.GameLogic
             return game.LastTurn != null && game.LastTurn.SaveId.HasValue;
         }
 
-        public void DownloadGameSave(Game game)
+        public void AttemptToDownloadGameSave(Game game)
+        {
+            if (!IsDownloadingGameSave(game))
+            {
+                AddNewSaveTransfer(game);
+
+                DownloadGameSave(game);
+            }
+        }
+
+        private void DownloadGameSave(Game game)
         {
             Uri onlineSaveUrl = CreateSaveDownloadUri(game);
             string localSavePath = _localSaveManager.CreateLocalSaveFilePath(game);
 
+            DownloadSave(game, localSavePath, onlineSaveUrl);
+        }
+
+        private void DownloadSave(Game game, string localSavePath, Uri onlineSaveUrl)
+        {
+            var webClient = new WebClient();
+            webClient.DownloadProgressChanged +=
+                (sender, args) => OnFileTransferProgressChanged(game.Id, args.ProgressPercentage);
+            webClient.DownloadFileCompleted +=
+                (sender, args) => OnFileTransferCompleted(game, localSavePath, args.Error);
+            webClient.DownloadFileAsync(onlineSaveUrl, localSavePath);
+        }
+
+        private bool IsDownloadingGameSave(Game game)
+        {
             var existingTransfer = GetExistingTransfer(game.Id);
             if (existingTransfer != null)
             {
@@ -167,24 +201,11 @@ namespace MRobot.Windows.GameLogic
                 else
                 {
                     Log.DebugFormat("Already downloading Game #{0}", game.Id);
-                    return; // We're already downloading it!
+                    return true;
                 }
             }
-            else
-            {
-                var transfer = new SaveTransfer
-                {
-                    Game = game,
-                    IconVisual = Application.Current.FindResource("TransfersIcon") as Visual
-                };
-                AddNewSaveTransfer(transfer);
-            }
 
-            var webClient = new WebClient();
-            webClient.DownloadProgressChanged +=
-                (sender, args) => OnFileTransferProgressChanged(game.Id, args.ProgressPercentage);
-            webClient.DownloadFileCompleted += (sender, args) => OnFileTransferCompleted(game, localSavePath, args.Error);
-            webClient.DownloadFileAsync(onlineSaveUrl, localSavePath);
+            return false;
         }
 
         private bool IsGameSaveNewerThanDownloadedVersion(Game game)
